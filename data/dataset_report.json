@@ -1,0 +1,144 @@
+{
+  "dup_pairs": [
+    [
+      3,
+      50
+    ],
+    [
+      5,
+      51
+    ],
+    [
+      6,
+      52
+    ],
+    [
+      10,
+      61
+    ],
+    [
+      13,
+      62
+    ],
+    [
+      32,
+      84
+    ],
+    [
+      33,
+      85
+    ],
+    [
+      35,
+      86
+    ]
+  ],
+  "pair_identity": {
+    "3-50": {
+      "rows_a": 891,
+      "rows_b": 891,
+      "games_a": 3,
+      "games_b": 3,
+      "rallys_a": 97,
+      "identical_all_columns": true
+    },
+    "5-51": {
+      "rows_a": 813,
+      "rows_b": 813,
+      "games_a": 3,
+      "games_b": 3,
+      "rallys_a": 101,
+      "identical_all_columns": true
+    },
+    "6-52": {
+      "rows_a": 1124,
+      "rows_b": 1124,
+      "games_a": 3,
+      "games_b": 3,
+      "rallys_a": 96,
+      "identical_all_columns": true
+    },
+    "10-61": {
+      "rows_a": 812,
+      "rows_b": 812,
+      "games_a": 3,
+      "games_b": 3,
+      "rallys_a": 108,
+      "identical_all_columns": true
+    },
+    "13-62": {
+      "rows_a": 576,
+      "rows_b": 576,
+      "games_a": 2,
+      "games_b": 2,
+      "rallys_a": 67,
+      "identical_all_columns": true
+    },
+    "32-84": {
+      "rows_a": 1198,
+      "rows_b": 1198,
+      "games_a": 3,
+      "games_b": 3,
+      "rallys_a": 110,
+      "identical_all_columns": true
+    },
+    "33-85": {
+      "rows_a": 826,
+      "rows_b": 826,
+      "games_a": 2,
+      "games_b": 2,
+      "rallys_a": 68,
+      "identical_all_columns": true
+    },
+    "35-86": {
+      "rows_a": 644,
+      "rows_b": 644,
+      "games_a": 2,
+      "games_b": 2,
+      "rallys_a": 75,
+      "identical_all_columns": true
+    }
+  },
+  "raw": {
+    "matches": 102,
+    "games": 244,
+    "rallies": 8307
+  },
+  "dedup": {
+    "matches": 94,
+    "games": 223,
+    "rallies": 7585
+  },
+  "macro": {
+    "games": 223,
+    "features": 18,
+    "label_1": 122,
+    "label_0": 101
+  },
+  "split": {
+    "train": {
+      "matches": 52,
+      "games": 121,
+      "label_1": 64,
+      "label_0": 57
+    },
+    "val": {
+      "matches": 13,
+      "games": 30,
+      "label_1": 18,
+      "label_0": 12
+    },
+    "test": {
+      "matches": 29,
+      "games": 72,
+      "label_1": 40,
+      "label_0": 32
+    }
+  },
+  "macro_baseline_new_split": {
+    "RF_test_AUC": 0.8546875,
+    "XGB_test_AUC": 0.89453125,
+    "train_games": 121,
+    "test_games": 72
+  }
+}
