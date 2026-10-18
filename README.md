@@ -6,6 +6,9 @@ Code and result files accompanying the manuscript
 > outcomes**
 > *<AUTHORS>*, *International Journal of Performance Analysis in Sport* (submitted).
 
+**Repository:** https://github.com/song497/badminton-inplay-prediction
+
+
 The study asks when, during a badminton game, the outcome actually becomes predictable, how far the
 performance obtained from whole-match aggregate data overstates that in-play level, and whether combining
 information sources can raise it. Every predictor is given an **earliest-computable timestamp**, and all
