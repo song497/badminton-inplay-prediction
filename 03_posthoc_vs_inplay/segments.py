@@ -92,6 +92,9 @@ whole_auc, whole_sd, whole_folds = cv_auc(build("whole", 0))
 res["whole"] = {"auc": whole_auc, "std": whole_sd, "folds": whole_folds}
 from scipy import stats as _st
 from config import ROOT, DATA, RESULTS, FIGURES  # noqa: E402
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
 for m in SEGMENTS:
     a1, s1, f1 = cv_auc(build("first", m))
     a2, s2, f2 = cv_auc(build("last", m))

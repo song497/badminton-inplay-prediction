@@ -22,6 +22,9 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import GroupKFold
 from config import ROOT, DATA, RESULTS, FIGURES  # noqa: E402
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
 
 ROOT = str(ROOT)
 OUTD = os.path.join(ROOT, "results_inplay")

@@ -18,6 +18,9 @@ from collections import Counter
 import numpy as np
 import pandas as pd
 from config import ROOT, DATA, RESULTS, FIGURES  # noqa: E402
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
 
 ROOT = str(ROOT)
 DATA = os.path.join(ROOT, "data", "dataset_blsr_v2.csv")

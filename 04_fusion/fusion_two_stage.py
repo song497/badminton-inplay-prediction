@@ -49,6 +49,9 @@ from sklearn.metrics import roc_auc_score
 
 import common as C
 from config import ROOT, DATA, RESULTS, FIGURES  # noqa: E402
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
 
 METHODS = ["wa", "rf_concat", "xgb_concat", "lr_concat",
            "stacking_lr", "stacking_rf", "stacking_xgb"]

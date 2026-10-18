@@ -12,6 +12,9 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from config import ROOT, DATA, RESULTS, FIGURES  # noqa: E402
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
 
 matplotlib.rcParams["font.sans-serif"] = ["Microsoft YaHei", "SimHei"]
 matplotlib.rcParams["axes.unicode_minus"] = False

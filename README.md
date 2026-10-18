@@ -12,6 +12,49 @@ We compare prediction of badminton game outcomes using information that is avail
 progress with prediction using whole-match aggregate data. Every predictor carries an earliest-computable
 time point, and all comparisons are run on the same split with the same evaluation setup.
 
+The code is organised in four parts, in the order in which the analyses are reported.
+
+## 01_data_preprocessing
+
+`build_dataset.py` turns the public ShuttleSet releases into the stroke-level dataset and the grouped
+match split used everywhere else. Duplicate matches across the two releases are dropped, which leaves
+94 matches, 223 games and 7,585 rallies.
+
+## 02_inplay_prediction
+
+Predictability as a function of the prediction time point.
+
+| Script | What it does |
+|---|---|
+| `arms_timealigned.py` | AUC of the seven information arms at each time point |
+| `micro_bilstm.py` | Rally-level models; the BiLSTM is the micro feature extractor |
+| `time_to_criterion.py` | Rallies needed to reach a target AUC |
+| `within_rally.py` | Within-rally curve |
+| `reliability_icc.py` | Intraclass correlation of stroke frequencies |
+
+## 03_posthoc_vs_inplay
+
+Comparison of the two evaluation stances.
+
+| Script | What it does |
+|---|---|
+| `inplay_vs_posthoc.py` | In-play versus post-hoc AUC, gap size, tautology check |
+| `segments.py` | First-m versus last-m rally windows |
+| `close_subset.py` | Undecided games (score difference <= 2), fold-mean test |
+
+## 04_fusion
+
+Combining information sources, in the two-stage design and end to end.
+
+| Script | What it does |
+|---|---|
+| `fusion_two_stage.py` | Seven two-stage fusion strategies |
+| `end_to_end.py` | GRU / LSTM / Transformer on game-level stroke sequences |
+| `probability_quality.py` | Accuracy, Brier score, ECE, net benefit |
+| `bootstrap_ece.py` | Bootstrap intervals for calibration differences |
+
+`common.py` and `config.py` at the top level are shared by all four parts.
+
 ## Requirements
 
 Python 3.11 with TensorFlow 2.15. A CPU is enough.
@@ -23,51 +66,29 @@ pip install -r requirements.txt
 ## Data
 
 The analyses use ShuttleSet and ShuttleSet22. Neither is redistributed here; download them from the
-original releases (see `data/README.md`), put the raw `set*/match*.csv` files under `raw/`, and run
+original releases (see `data/README.md`), put the raw `set*/match*.csv` files under `raw/`, and run the
+first step.
+
+## Running the analyses
+
+Run everything from the repository root. Scripts write into `results/`. Deep models are trained five
+times with seeds 42-46 and the reported values are means over runs.
 
 ```
-python build_dataset.py
+python 01_data_preprocessing/build_dataset.py
+python 02_inplay_prediction/micro_bilstm.py
+python 02_inplay_prediction/arms_timealigned.py
+python 02_inplay_prediction/time_to_criterion.py
+python 02_inplay_prediction/within_rally.py
+python 02_inplay_prediction/reliability_icc.py
+python 03_posthoc_vs_inplay/inplay_vs_posthoc.py
+python 03_posthoc_vs_inplay/segments.py
+python 03_posthoc_vs_inplay/close_subset.py
+python 04_fusion/fusion_two_stage.py
+python 04_fusion/end_to_end.py
+python 04_fusion/probability_quality.py
+python 04_fusion/bootstrap_ece.py
 ```
-
-This writes the processed dataset and the match-level split files into `data/`. Duplicate matches across
-the two releases are dropped, which leaves 94 matches, 223 games and 7,585 rallies.
-
-## Running the scripts
-
-Run everything from the repository root. Scripts write into `results/`. Deep models are trained five times
-with seeds 42-46 and the reported values are means over runs.
-
-```
-python micro_bilstm.py          # rally-level models (the BiLSTM is the micro feature extractor)
-python fusion_two_stage.py      # two-stage fusion strategies
-python end_to_end.py            # end-to-end sequence models
-python arms_timealigned.py      # information arms across prediction time points
-python inplay_vs_posthoc.py     # in-play versus post-hoc comparison, tautology check
-python probability_quality.py   # accuracy, Brier score, ECE, net benefit
-python reliability_icc.py       # intraclass correlation of stroke frequencies
-python time_to_criterion.py     # rallies needed to reach a target AUC
-python segments.py              # first-m versus last-m rally windows
-python within_rally.py          # within-rally curve
-python bootstrap_ece.py         # bootstrap intervals for calibration differences
-python close_subset.py          # undecided games (score difference <= 2)
-```
-
-## Scripts and outputs
-
-| Output | Script |
-|---|---|
-| Sample composition (`data/dataset_report.json`) | `build_dataset.py` |
-| Information arms across time points (`results/timealigned_learner.json`) | `arms_timealigned.py` |
-| In-play versus post-hoc, tautology (`results/inplay_lr.json`) | `inplay_vs_posthoc.py` |
-| Probability quality and net benefit (`results/quality_lr.json`) | `probability_quality.py` |
-| Intraclass correlation (`results/snr_summary.json`) | `reliability_icc.py` |
-| Time to criterion (`results/t2c_summary.json`) | `time_to_criterion.py` |
-| Segment analysis (`results/segment_information.json`) | `segments.py` |
-| Within-rally curve (`results/within_rally_lstm_curve.json`) | `within_rally.py` |
-| Fusion numbers (`results/fusion_learner_check.json`) | `fusion_two_stage.py` |
-| Micro-model selection (`results/micro_model_choice.json`) | `micro_bilstm.py` |
-| Bootstrap intervals for ECE (`results/ece_bootstrap.json`) | `bootstrap_ece.py` |
-| Undecided-subset test (`results/close_subset_foldmean.json`) | `close_subset.py` |
 
 Computed results are kept in `results/`, so the numbers in the paper can be checked without re-training.
 
