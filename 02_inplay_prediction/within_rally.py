@@ -17,39 +17,9 @@ import matplotlib.pyplot as plt
 
 matplotlib.rcParams["font.sans-serif"] = ["Microsoft YaHei", "SimHei"]
 matplotlib.rcParams["axes.unicode_minus"] = False
-OUT = str(RESULTS)
-
-# ============================================================ 图6
-R = json.load(open(os.path.join(str(R3), "inplay_lr.json"), encoding="utf-8"))
-ws = [5, 10, 15, 20, 25, 30]
-main_m = [R["t7"][str(w)]["main"]["mean"] for w in ws]
-main_s = [R["t7"][str(w)]["main"]["std"] for w in ws]
-tech_m = [R["t7"][str(w)]["tech"]["mean"] for w in ws]
-state_m = [R["t7"][str(w)]["state"]["mean"] for w in ws]
-posthoc = R["t7_full"]["tech"]["mean"]
-
-fig, ax = plt.subplots(figsize=(6.6, 4.3), dpi=300)
-ax.errorbar(ws, main_m, yerr=main_s, fmt="o-", capsize=4, label="赛中预测：技术频差+比分+势头")
-ax.plot(ws, tech_m, "^-", alpha=0.75, label="仅技术频差（截至该时点）")
-ax.plot(ws, state_m, "s--", alpha=0.75, label="仅比分+势头")
-ax.axhline(posthoc, color="crimson", ls=":", lw=1.6,
-           label="整局全量技术频差（赛后分类）= %.3f" % posthoc)
-ax.axhline(0.5, color="gray", ls="-.", lw=1.0, label="随机基线 0.5")
-ax.set_xlabel("预测时点：已完成回合数 $w$")
-ax.set_ylabel("局级胜负 AUC（5 折按比赛分组 CV，逻辑回归）")
-ax.set_title("赛中预测 vs 赛后分类")
-ax.set_ylim(0.55, max(0.98, posthoc + 0.05))
-ax.grid(alpha=0.3)
-ax.legend(fontsize=8, loc="lower right")
-fig.tight_layout()
-fig.savefig(os.path.join(OUT, "fig_inplay_auc_lr.png"))
-fig.savefig(os.path.join(OUT, "fig_inplay_auc_lr.pdf"))
-plt.close(fig)
-print("图6 ->", "fig_inplay_auc_lr.png", "posthoc=%.4f" % posthoc)
-
 # ============================================================ 图7
 merged = {}
-for p in glob.glob(os.path.join(OUT, "e5_fixed_k*.json")):
+for p in glob.glob(os.path.join(str(R2), "e5_fixed_k*.json")):
     try:
         d = json.load(open(p, encoding="utf-8"))
     except Exception:
@@ -75,11 +45,11 @@ ax.set_ylim(0.46, 0.88)
 ax.grid(alpha=0.3)
 ax.legend(fontsize=9, loc="lower right")
 fig.tight_layout()
-fig.savefig(os.path.join(OUT, "fig_within_rally_lstm.png"))
-fig.savefig(os.path.join(OUT, "fig_within_rally_lstm.pdf"))
+fig.savefig(os.path.join(str(FIGURES), "fig_within_rally_lstm.png"))
+fig.savefig(os.path.join(str(FIGURES), "fig_within_rally_lstm.pdf"))
 plt.close(fig)
 print("图7 ->", "fig_within_rally_lstm.png")
 for k, m, s in zip(KS, mean, std):
     print("   k=%-4s %.4f ± %.4f" % (k, m, s))
-json.dump({k: merged[k] for k in KS}, open(os.path.join(OUT, "within_rally_lstm_curve.json"), "w",
+json.dump({k: merged[k] for k in KS}, open(os.path.join(str(R2), "within_rally_lstm_curve.json"), "w",
                                            encoding="utf-8"), ensure_ascii=False, indent=1)

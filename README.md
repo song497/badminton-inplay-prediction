@@ -96,7 +96,8 @@ python 02_inplay_prediction/arms_timealigned.py
 # 5. in-play versus post-hoc -> Table 3 / Figure 3b / Figure 4
 python 03_posthoc_vs_inplay/inplay_vs_posthoc.py
 
-# 6. within-rally curve -> Figure 5  (needs step 5)
+# 6. within-rally curve -> Figure 5
+python 02_inplay_prediction/run_within_rally.py
 python 02_inplay_prediction/within_rally.py
 
 # 7. time to criterion
