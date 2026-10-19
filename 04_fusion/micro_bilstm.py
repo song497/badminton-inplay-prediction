@@ -30,6 +30,7 @@ import numpy as np
 import pandas as pd
 
 import common as C
+C.RESULTS_DIR = str(R4)  # records for this part go into results/04_fusion/
 
 CONDITIONS = ["cnn", "bilstm", "transformer", "cnn_no_location", "cnn_lindan",
               "bilstm_no_location", "bilstm_lindan"]

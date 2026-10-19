@@ -87,8 +87,8 @@ python 01_data_preprocessing/build_dataset.py
 # 2. train the time-aligned arms; writes micro_oof_rally_probs.csv  [slowest step]
 python 02_inplay_prediction/run_timealigned.py
 
-# 3. micro model selection
-python 02_inplay_prediction/micro_bilstm.py
+# 3. micro model comparison
+python 04_fusion/micro_bilstm.py
 
 # 4. arms summary -> Table 2 / Figure 2
 python 02_inplay_prediction/arms_timealigned.py

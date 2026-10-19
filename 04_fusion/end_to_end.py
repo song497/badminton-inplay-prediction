@@ -37,6 +37,7 @@ import numpy as np
 import tensorflow as tf
 
 import common as C
+C.RESULTS_DIR = str(R4)  # records for this part go into results/04_fusion/
 
 ARCHS = ["gru", "lstm", "transformer"]
 CONDITIONS = ["%s_%s" % (a, s) for a in ARCHS for s in ("pure", "macro")]

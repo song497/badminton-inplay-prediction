@@ -51,6 +51,7 @@ from sklearn.model_selection import GroupKFold, GroupShuffleSplit
 from sklearn.metrics import roc_auc_score
 
 import common as C
+C.RESULTS_DIR = str(R4)  # records for this part go into results/04_fusion/
 
 METHODS = ["wa", "rf_concat", "xgb_concat", "lr_concat",
            "stacking_lr", "stacking_rf", "stacking_xgb"]
