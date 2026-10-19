@@ -1,6 +1,6 @@
-"""Parse the raw ShuttleSet releases into a single stroke-level table.
+"""Parse the raw ShuttleSet releases into one stroke-level table.
 
-Input : raw/set/<match>/set*.csv   (ShuttleSet and ShuttleSet22 releases)
+Input : the folder holding set/ and set22/  (auto-detected: raw/, data/raw/ or data/)
 Output: data/dataset_blsr_all.csv   one row per stroke
         data/game_to_match.csv      game_id -> match_id mapping
 """
@@ -8,12 +8,30 @@ import os as _os
 import sys as _sys
 _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
 from config import ROOT, DATA, RESULTS, FIGURES, R1, R2, R3, R4  # noqa: E402
+
 import os
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
 
-RAW_ROOT = str(ROOT / "raw")
+def _find_raw_root():
+    """Locate the folder that contains the set/ and set22/ subfolders."""
+    for cand in (ROOT / "raw", DATA / "raw", DATA, ROOT):
+        if cand.is_dir() and any((cand / d).is_dir() for d in ("set", "set22")):
+            return cand
+    return ROOT / "raw"
+
+
+RAW_ROOT = str(_find_raw_root())
+
+# Optional match list: if data/match_list.txt exists, only those matches are parsed.
+# This pins the exact sample used in the paper, so that the same dataset is rebuilt
+# even when a larger release is present on disk.
+_MATCH_LIST = DATA / "match_list.txt"
+KEEP = None
+if _MATCH_LIST.exists():
+    _MATCH_ORDER = [ln.strip() for ln in _MATCH_LIST.read_text(encoding="utf-8").splitlines() if ln.strip()]
+    KEEP = set(_MATCH_ORDER)
 OUTPUT_CSV = str(DATA / "dataset_blsr_all.csv")
 GAME_MAP_FILE = str(DATA / "game_to_match.csv")   # 保存 game_id, match_id, source_file 映射
 
@@ -70,12 +88,12 @@ def process_game(filepath, match_id, game_id, rally_counter, records):
         try:
             df = pd.read_csv(filepath, encoding='gbk')
         except Exception as e:
-            print(f"  ⚠️ 读取失败: {filepath} - {e}")
+            print(f"   读取失败: {filepath} - {e}")
             return rally_counter
     required = ['rally', 'ball_round', 'player', 'type', 'roundscore_A', 'roundscore_B']
     missing = [c for c in required if c not in df.columns]
     if missing:
-        print(f"  ⚠️ 缺少列 {missing}: {filepath}")
+        print(f"   缺少列 {missing}: {filepath}")
         return rally_counter
     # 填充缺失列
     for col in ['hit_area', 'player_location_area', 'opponent_location_area']:
@@ -135,14 +153,22 @@ def process_game(filepath, match_id, game_id, rally_counter, records):
 def main():
     # 遍历 set 和 set22 下的所有子文件夹（真正的比赛文件夹）
     match_folders = []
-    for dataset in ['set', 'set22']:
-        dataset_path = os.path.join(RAW_ROOT, dataset)
-        if not os.path.isdir(dataset_path):
-            continue
-        for match_name in os.listdir(dataset_path):
-            match_path = os.path.join(dataset_path, match_name)
-            if os.path.isdir(match_path):
-                match_folders.append(match_path)
+    if KEEP is not None:
+        # follow the order recorded in data/match_list.txt so that game/match ids
+        # are identical to the ones used in the paper
+        for rel in _MATCH_ORDER:
+            p = os.path.join(RAW_ROOT, rel)
+            if os.path.isdir(p):
+                match_folders.append(p)
+    else:
+        for dataset in ['set', 'set22']:
+            dataset_path = os.path.join(RAW_ROOT, dataset)
+            if not os.path.isdir(dataset_path):
+                continue
+            for match_name in sorted(os.listdir(dataset_path)):
+                match_path = os.path.join(dataset_path, match_name)
+                if os.path.isdir(match_path):
+                    match_folders.append(match_path)
     print(f"发现 {len(match_folders)} 个比赛文件夹")
     if not match_folders:
         print("错误：未找到比赛文件夹，请检查 RAW_ROOT 路径")
@@ -157,7 +183,7 @@ def main():
     for folder in match_folders:
         csv_files = [f for f in os.listdir(folder) if f.endswith('.csv')]
         if not csv_files:
-            print(f"⚠️ 比赛文件夹无 CSV: {folder}")
+            print(f" 比赛文件夹无 CSV: {folder}")
             continue
         print(f"处理比赛 {match_id}: {os.path.basename(folder)} ({len(csv_files)} 局)")
         for csv_file in csv_files:

@@ -3,7 +3,15 @@
 All scripts import from here so that the code runs from any checkout location:
     from config import ROOT, DATA, RESULTS, FIGURES
 """
+import sys as _sys
 from pathlib import Path
+
+# Make console output safe on Windows terminals that default to a non-UTF-8 code page.
+for _stream in (_sys.stdout, _sys.stderr):
+    try:
+        _stream.reconfigure(encoding=utf-8, errors=replace)
+    except Exception:
+        pass
 
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"

@@ -15,3 +15,6 @@ raw/
 raw/
 data/dataset_blsr_all.csv
 data/game_to_match.csv
+# Raw ShuttleSet releases (large, not redistributed)
+data/set/
+data/set22/
