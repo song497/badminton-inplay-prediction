@@ -17,14 +17,14 @@ import os, json
 from collections import Counter
 import numpy as np
 import pandas as pd
-from config import ROOT, DATA, RESULTS, FIGURES  # noqa: E402
+from config import ROOT, DATA, RESULTS, FIGURES, R1, R2, R3, R4, R1, R2, R3, R4  # noqa: E402
 import os as _os
 import sys as _sys
 _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
 
 ROOT = str(ROOT)
-DATA = os.path.join(ROOT, "data", "dataset_blsr_v2.csv")
-OUT = os.path.join(ROOT, "results_inplay")
+DATA = str(DATA / "dataset_blsr_v2.csv") if not str(DATA).endswith(".csv") else DATA
+OUT = str(R2)
 WINDOWS = [5, 10, 15, 20, 25, 30]
 WMAX = max(WINDOWS)
 

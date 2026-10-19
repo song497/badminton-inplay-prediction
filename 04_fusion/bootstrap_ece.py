@@ -12,7 +12,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 import common as C
-from config import ROOT, DATA, RESULTS, FIGURES  # noqa: E402
+from config import ROOT, DATA, RESULTS, FIGURES, R1, R2, R3, R4  # noqa: E402
 import os as _os
 import sys as _sys
 _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
@@ -43,7 +43,7 @@ TYPES = sorted(df["type"].dropna().unique())
 GAMES = load_games(df)
 POP = sorted([g for g, x in GAMES.items() if len(x["rallies"]) >= WMAX])
 OOF = {}
-for r in __import__("pandas").read_csv(os.path.join(OUT, "micro_oof_rally_probs.csv")).itertuples():
+for r in __import__("pandas").read_csv(os.path.join(str(R2), "micro_oof_rally_probs.csv")).itertuples():
     OOF[(int(r.game_id), int(r.rally_id))] = float(r.prob)
 
 

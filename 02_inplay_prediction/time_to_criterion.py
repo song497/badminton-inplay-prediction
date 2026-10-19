@@ -21,13 +21,13 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import GroupKFold
-from config import ROOT, DATA, RESULTS, FIGURES  # noqa: E402
+from config import ROOT, DATA, RESULTS, FIGURES, R1, R2, R3, R4  # noqa: E402
 import os as _os
 import sys as _sys
 _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
 
 ROOT = str(ROOT)
-OUTD = os.path.join(ROOT, "results_inplay")
+OUTD = str(R2)
 DATA = os.path.join(ROOT, "data", "dataset_blsr_v2.csv")
 SEED, N_FOLDS, NBOOT = 42, 5, 2000
 WINDOWS = [5, 10, 15, 20, 25, 30]

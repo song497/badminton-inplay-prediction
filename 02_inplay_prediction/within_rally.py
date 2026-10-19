@@ -11,7 +11,7 @@ import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from config import ROOT, DATA, RESULTS, FIGURES  # noqa: E402
+from config import ROOT, DATA, RESULTS, FIGURES, R1, R2, R3, R4  # noqa: E402
 import os as _os
 import sys as _sys
 _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
@@ -21,7 +21,7 @@ matplotlib.rcParams["axes.unicode_minus"] = False
 OUT = str(RESULTS)
 
 # ============================================================ 图6
-R = json.load(open(os.path.join(OUT, "inplay_lr.json"), encoding="utf-8"))
+R = json.load(open(os.path.join(str(R3), "inplay_lr.json"), encoding="utf-8"))
 ws = [5, 10, 15, 20, 25, 30]
 main_m = [R["t7"][str(w)]["main"]["mean"] for w in ws]
 main_s = [R["t7"][str(w)]["main"]["std"] for w in ws]

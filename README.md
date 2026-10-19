@@ -71,22 +71,51 @@ first step.
 
 ## Running the analyses
 
-Run everything from the repository root. Scripts write into `results/`. Deep models are trained five
-times with seeds 42-46 and the reported values are means over runs.
+Run everything from the repository root. Scripts write into `results/<part>/`. Deep models are trained
+five times with seeds 42-46 and the reported values are means over runs.
+
+The steps below must be run in this order: step 2 writes `micro_oof_rally_probs.csv`, which four later
+scripts read, and step 5 writes `inplay_lr.json`, which step 6 reads.
 
 ```
+# 1. build the dataset (requires data/dataset_blsr_all.csv, see data/README.md)
 python 01_data_preprocessing/build_dataset.py
+
+# 2. train the time-aligned arms; writes micro_oof_rally_probs.csv  [slowest step]
+python 02_inplay_prediction/run_timealigned.py
+
+# 3. micro model selection
 python 02_inplay_prediction/micro_bilstm.py
+
+# 4. arms summary -> Table 2 / Figure 2
 python 02_inplay_prediction/arms_timealigned.py
-python 02_inplay_prediction/time_to_criterion.py
-python 02_inplay_prediction/within_rally.py
-python 02_inplay_prediction/reliability_icc.py
+
+# 5. in-play versus post-hoc -> Table 3 / Figure 3b / Figure 4
 python 03_posthoc_vs_inplay/inplay_vs_posthoc.py
+
+# 6. within-rally curve -> Figure 5  (needs step 5)
+python 02_inplay_prediction/within_rally.py
+
+# 7. time to criterion
+python 02_inplay_prediction/time_to_criterion.py
+
+# 8. reliability -> Figure 3a
+python 02_inplay_prediction/reliability_icc.py
+
+# 9. segment analysis
 python 03_posthoc_vs_inplay/segments.py
+
+# 10. undecided-subset test
 python 03_posthoc_vs_inplay/close_subset.py
+
+# 11. fusion
 python 04_fusion/fusion_two_stage.py
 python 04_fusion/end_to_end.py
+
+# 12. probability quality -> Table 4
 python 04_fusion/probability_quality.py
+
+# 13. calibration intervals
 python 04_fusion/bootstrap_ece.py
 ```
 
