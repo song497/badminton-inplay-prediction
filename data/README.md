@@ -1,19 +1,53 @@
 # Data
 
-No dataset files are distributed with this repository. They are built from the public ShuttleSet releases
-by `build_dataset.py`. What is kept here is only the small metadata that documents the sample.
+No dataset files are redistributed with this repository. Everything here is rebuilt from the two public
+ShuttleSet releases.
 
-| File | Content |
+## Step 0 — parse the raw releases
+
+Download the two releases and unpack them so that this layout exists:
+
+```
+raw/
+  set/<match name>/set1.csv, set2.csv, ...
+```
+
+Then run
+
+```
+python 01_data_preprocessing/parse_raw.py
+```
+
+This writes `data/dataset_blsr_all.csv` (88,520 strokes, 244 games, 102 matches) and
+`data/game_to_match.csv` (the game to match mapping). Parsing the full set of raw files reproduces the
+stroke-level table exactly.
+
+## Step 1 — build the analysis dataset
+
+```
+python 01_data_preprocessing/build_dataset.py
+```
+
+This writes:
+
+| File | Contents |
 |---|---|
-| `dataset_report.json` | Sample size: matches, games, rallies |
-| `train_match_ids_v2.txt`, `val_match_ids_v2.txt`, `test_match_ids_v2.txt` | Grouped match-level split |
+| `dataset_blsr_v2.csv` | the stroke-level table used by every analysis |
+| `macro_features_v2.csv` | 18-dimensional stroke-frequency features per game |
+| `dataset_report.json` | sample size (Table 1) |
+| `train_/val_/test_match_ids_v2.txt` | grouped match split |
 
-`build_dataset.py` also produces two files that are not tracked in git:
+Duplicate matches between the two releases are dropped, which leaves 94 matches, 223 games and 7,585
+rallies.
 
-- `dataset_blsr_v2.csv` — one row per stroke (91,636 rows), with columns `game_id`, `rally_id`, `match_id`,
-  `is_target_turn`, `aroundhead`, `backhand`, `time_proportion`, `roundscore_diff`, `continuous_score`,
-  `hit_area`, `player_location_area`, `opponent_location_area`, `type`, `is_target_win`
-- `macro_features_v2.csv` — 18-dimensional stroke-frequency features per game
+## Committed metadata
+
+Only small metadata files are tracked:
+
+| File | Contents |
+|---|---|
+| `dataset_report.json` | sample size |
+| `train_/val_/test_match_ids_v2.txt` | the grouped split |
 
 ## Source data
 
@@ -22,15 +56,5 @@ by `build_dataset.py`. What is kept here is only the small metadata that documen
 - **ShuttleSet22** — Wang, W.-Y., Du, W.-W., Peng, W.-C., & Ik, T.-U. (2024). Benchmarking stroke
   forecasting with stroke-level badminton dataset. arXiv:2306.15664.
 
-Download both from their original releases and follow their licences. They are not redistributed here, and
+Download both from their original releases and follow their licences. Neither is redistributed here, and
 neither is the derived dataset.
-
-## Rebuilding
-
-Put the raw `set*/match*.csv` files under `raw/`, then run
-
-```
-python build_dataset.py
-```
-
-Duplicated matches between the two releases are dropped, leaving 94 matches, 223 games and 7,585 rallies.

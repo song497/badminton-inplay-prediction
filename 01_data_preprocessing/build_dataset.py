@@ -24,7 +24,7 @@ import os as _os
 import sys as _sys
 _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
 
-SRC = str(ROOT)
+SRC = str(DATA)
 OUT = str(DATA)
 os.makedirs(OUT, exist_ok=True)
 

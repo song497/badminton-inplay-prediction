@@ -16,8 +16,8 @@ The code is organised in four parts, in the order in which the analyses are repo
 
 ## 01_data_preprocessing
 
-`build_dataset.py` turns the public ShuttleSet releases into the stroke-level dataset and the grouped
-match split used everywhere else. Duplicate matches across the two releases are dropped, which leaves
+`parse_raw.py` reads the raw ShuttleSet releases and writes one stroke-level table; `build_dataset.py`
+turns that table into the analysis dataset and the grouped match split used everywhere else. Duplicate matches across the two releases are dropped, which leaves
 94 matches, 223 games and 7,585 rallies.
 
 ## 02_inplay_prediction
@@ -78,7 +78,10 @@ The steps below must be run in this order: step 2 writes `micro_oof_rally_probs.
 scripts read, and step 5 writes `inplay_lr.json`, which step 6 reads.
 
 ```
-# 1. build the dataset (requires data/dataset_blsr_all.csv, see data/README.md)
+# 0. parse the raw ShuttleSet releases into one stroke-level table (see data/README.md)
+python 01_data_preprocessing/parse_raw.py
+
+# 1. build the analysis dataset
 python 01_data_preprocessing/build_dataset.py
 
 # 2. train the time-aligned arms; writes micro_oof_rally_probs.csv  [slowest step]

@@ -11,3 +11,7 @@ outputs/
 data/dataset_blsr_v2.csv
 data/macro_features_v2.csv
 raw/
+# Raw data and files derived from it (see data/README.md)
+raw/
+data/dataset_blsr_all.csv
+data/game_to_match.csv
