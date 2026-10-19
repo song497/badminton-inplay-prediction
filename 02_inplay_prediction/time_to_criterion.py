@@ -10,6 +10,9 @@ R7 最简状态量：只用"比分差"（1 维）能逼近完整状态臂（3 �
 
 输出：results_inplay/t2c_summary.json、_facts/t2c.md
 """
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from config import ROOT, DATA, RESULTS, FIGURES, R1, R2, R3, R4  # noqa: E402
 import os, json
 from collections import Counter
 import numpy as np
@@ -21,10 +24,6 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import GroupKFold
-from config import ROOT, DATA, RESULTS, FIGURES, R1, R2, R3, R4  # noqa: E402
-import os as _os
-import sys as _sys
-_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
 
 ROOT = str(ROOT)
 OUTD = str(R2)
@@ -55,7 +54,6 @@ _o = pd.read_csv(os.path.join(OUTD, "micro_oof_rally_probs.csv"))
 for r in _o.itertuples():
     MICRO[(int(r.game_id), int(r.rally_id))] = float(r.prob)
 
-
 def feats(gid, upto):
     g = games[gid]
     rl = g["rallies"][:upto]
@@ -74,9 +72,7 @@ def feats(gid, upto):
     return (np.array([score], np.float32),
             np.array([score, momentum, upto], np.float32), style, mic)
 
-
 ARMS = {"min_state": 0, "state": 1, "style": 2, "style+micro": None, "all": None}
-
 
 def build(gids, upto_fn):
     rows = []
@@ -86,7 +82,6 @@ def build(gids, upto_fn):
         rows.append({"gid": gid, "match_id": games[gid]["match_id"], "label": games[gid]["label"],
                      "min_state": ms, "state": st, "style": sty, "mic": mi})
     return rows
-
 
 def mat(rows, arm):
     if arm == "min_state":
@@ -99,7 +94,6 @@ def mat(rows, arm):
         return np.array([np.concatenate([r["style"], r["mic"]]) for r in rows], np.float32)
     return np.array([np.concatenate([r["state"], r["style"], r["mic"]]) for r in rows], np.float32)
 
-
 def make_model(kind):
     if kind == "rf":
         return RandomForestClassifier(n_estimators=600, max_depth=8, random_state=SEED, n_jobs=4)
@@ -107,7 +101,6 @@ def make_model(kind):
         return make_pipeline(StandardScaler(), LogisticRegression(max_iter=2000, random_state=SEED))
     return xgb.XGBClassifier(n_estimators=200, max_depth=6, learning_rate=0.05, random_state=SEED,
                              eval_metric="logloss", n_jobs=4)
-
 
 def oof(rows, arm, kind="xgb"):
     y = np.array([r["label"] for r in rows]); g = np.array([r["match_id"] for r in rows])
@@ -119,7 +112,6 @@ def oof(rows, arm, kind="xgb"):
         p[te] = m.predict_proba(X[te])[:, 1]
         fold_auc.append(float(roc_auc_score(y[te], p[te])))
     return y, g, p, fold_auc
-
 
 def boot_curve(y, g, probs_by_w, nboot=NBOOT, seed=SEED):
     """按比赛重抽样，得到各时点 AUC 的 bootstrap 分布"""
@@ -137,7 +129,6 @@ def boot_curve(y, g, probs_by_w, nboot=NBOOT, seed=SEED):
             out[w].append(roc_auc_score(yy, p[idx]))
     return {w: np.array(v) for w, v in out.items()}
 
-
 def crossing(curve, thr, grid):
     """curve: dict grid->auc ; 返回首次达到 thr 的网格点（线性插值），未达到返回 nan"""
     xs = sorted(grid)
@@ -149,7 +140,6 @@ def crossing(curve, thr, grid):
             y0, y1 = curve[x0], curve[x1]
             return float(x0 + (thr - y0) * (x1 - x0) / (y1 - y0)) if y1 > y0 else float(x1)
     return float("nan")
-
 
 res = {}
 

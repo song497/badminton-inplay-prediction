@@ -6,6 +6,9 @@
 目的：检验论文核心对比"状态类积累、风格类不积累"是否依赖学习器选择。
 输出：results_inplay/timealigned_learner.json + _facts/timealigned_learner.md
 """
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from config import ROOT, DATA, RESULTS, FIGURES, R1, R2, R3, R4  # noqa: E402
 import os, json
 import numpy as np
 import pandas as pd
@@ -17,10 +20,6 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import roc_auc_score
 import xgboost as xgb
 import common as C
-from config import ROOT, DATA, RESULTS, FIGURES, R1, R2, R3, R4  # noqa: E402
-import os as _os
-import sys as _sys
-_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
 
 ROOT = str(ROOT)
 OUT = str(R2)
@@ -30,7 +29,6 @@ WMAX = max(WINDOWS)
 
 df, META = C.load_blsr(C.BLSR_V2)
 TYPES = sorted(df["type"].dropna().unique())
-
 
 def load_games(df):
     out = {}
@@ -48,7 +46,6 @@ def load_games(df):
                          "label": int(g["is_target_win"].iloc[-1])}
     return out
 
-
 GAMES = load_games(df)
 POP = sorted([gid for gid, g in GAMES.items() if len(g["rallies"]) >= WMAX])
 
@@ -57,7 +54,6 @@ p = os.path.join(OUT, "micro_oof_rally_probs.csv")
 for r in pd.read_csv(p).itertuples():
     OOF[(int(r.game_id), int(r.rally_id))] = float(r.prob)
 print("games=%d pop=%d oof=%d" % (len(GAMES), len(POP), len(OOF)), flush=True)
-
 
 def feats_at(g, upto):
     rallies = g["rallies"][:upto]
@@ -74,14 +70,12 @@ def feats_at(g, upto):
     state = np.array([score, momentum, upto], dtype=np.float32)
     return state, style
 
-
 def micro_agg(gid, g, upto):
     ps = [OOF.get((gid, r["rally_id"]), np.nan) for r in g["rallies"][:upto]]
     ps = [x for x in ps if not np.isnan(x)]
     if not ps:
         return np.zeros(4, np.float32)
     return np.array([np.mean(ps), np.std(ps), np.max(ps), np.min(ps)], dtype=np.float32)
-
 
 ARMS = {
     "state": lambda r: r["state"],
@@ -95,15 +89,12 @@ ARMS = {
 CN = {"state": "仅状态", "style": "仅风格", "micro": "仅微观", "style+micro": "风格+微观(原式融合)",
       "state+style": "状态+风格", "state+micro": "状态+微观", "all": "全部"}
 
-
 def mk_lr():
     return make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000, random_state=SEED))
-
 
 def mk_xgb():
     return xgb.XGBClassifier(n_estimators=200, max_depth=6, learning_rate=0.05,
                              random_state=SEED, eval_metric="logloss", n_jobs=4)
-
 
 res = {"note": "同一批183局、同一5折、同一特征；学习器对照 LR vs XGB",
        "n_games": len(POP), "windows": {}}

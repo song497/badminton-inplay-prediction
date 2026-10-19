@@ -13,6 +13,9 @@
 
 输出：results_inplay/segment_information.json、_facts/segment_information.md
 """
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from config import ROOT, DATA, RESULTS, FIGURES, R1, R2, R3, R4  # noqa: E402
 import os, sys, json
 from collections import Counter
 import numpy as np
@@ -23,7 +26,6 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import GroupKFold
 
-sys.path.insert(0, str(ROOT))
 import common as C  # noqa: E402
 
 OUTD = str(RESULTS)
@@ -47,7 +49,6 @@ for gid, g in df.groupby("game_id", sort=True):
                        "label": int(g["is_target_win"].iloc[-1])}
 POP = sorted([g for g, v in games.items() if len(v["rallies"]) >= WMAX])
 
-
 def tech_of(rallies):
     sc, rc = Counter(), Counter(); st = rt = 0
     for r in rallies:
@@ -55,7 +56,6 @@ def tech_of(rallies):
         st += r["server_shots"]; rt += r["receiver_shots"]
     return np.array([(sc.get(t, 0) / st if st else 0.0) - (rc.get(t, 0) / rt if rt else 0.0)
                      for t in TYPES], np.float32)
-
 
 def build(mode, m):
     rows = []
@@ -74,7 +74,6 @@ def build(mode, m):
                      "X": tech_of(seg)})
     return rows
 
-
 def cv_auc(rows):
     y = np.array([r["label"] for r in rows]); g = np.array([r["match_id"] for r in rows])
     X = np.array([r["X"] for r in rows], np.float32)
@@ -85,16 +84,11 @@ def cv_auc(rows):
         folds.append(float(roc_auc_score(y[te], m.predict_proba(X[te])[:, 1])))
     return float(np.mean(folds)), float(np.std(folds)), folds
 
-
 res = {"note": "同一批 183 局；技术频差特征；逻辑回归；5 折 GroupKFold", "population": len(POP)}
 print("%-8s %-9s %-9s %-9s %-12s %-8s" % ("段长 m", "前 m 回合", "后 m 回合", "整局", "后-前", "配对 p"), flush=True)
 whole_auc, whole_sd, whole_folds = cv_auc(build("whole", 0))
 res["whole"] = {"auc": whole_auc, "std": whole_sd, "folds": whole_folds}
 from scipy import stats as _st
-from config import ROOT, DATA, RESULTS, FIGURES  # noqa: E402
-import os as _os
-import sys as _sys
-_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
 for m in SEGMENTS:
     a1, s1, f1 = cv_auc(build("first", m))
     a2, s2, f2 = cv_auc(build("last", m))

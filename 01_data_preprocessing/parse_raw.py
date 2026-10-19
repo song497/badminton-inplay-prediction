@@ -1,12 +1,12 @@
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
 """Parse the raw ShuttleSet releases into one stroke-level table.
 
 Input : the folder holding set/ and set22/  (auto-detected: raw/, data/raw/ or data/)
 Output: data/dataset_blsr_all.csv   one row per stroke
         data/game_to_match.csv      game_id -> match_id mapping
 """
-import os as _os
-import sys as _sys
-_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
 from config import ROOT, DATA, RESULTS, FIGURES, R1, R2, R3, R4  # noqa: E402
 
 import os

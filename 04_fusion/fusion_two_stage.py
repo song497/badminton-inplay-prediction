@@ -34,6 +34,9 @@ env / CLI
   N_RUNS (default 5)  EPOCHS (default 100)  V2_FUSION_FOLDS (default 5)
   python run_fusion.py [--conditions fusion] [--n-runs 1] [--epochs 2]
 """
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from config import ROOT, DATA, RESULTS, FIGURES, R1, R2, R3, R4  # noqa: E402
 import os
 import time
 
@@ -48,10 +51,6 @@ from sklearn.model_selection import GroupKFold, GroupShuffleSplit
 from sklearn.metrics import roc_auc_score
 
 import common as C
-from config import ROOT, DATA, RESULTS, FIGURES  # noqa: E402
-import os as _os
-import sys as _sys
-_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
 
 METHODS = ["wa", "rf_concat", "xgb_concat", "lr_concat",
            "stacking_lr", "stacking_rf", "stacking_xgb"]
@@ -74,7 +73,6 @@ RF_META = dict(n_estimators=100, random_state=42)
 XGB_META = dict(n_estimators=100, max_depth=4, random_state=42)
 ALPHAS = np.arange(0, 1.05, 0.05)
 
-
 def macro_probs_oof(X, y, groups, seed: int, n_folds: int):
     """OOF macro probabilities + full-train model for the test split."""
     oof = np.full(len(y), np.nan, dtype=float)
@@ -88,7 +86,6 @@ def macro_probs_oof(X, y, groups, seed: int, n_folds: int):
                          LogisticRegression(max_iter=5000, random_state=seed))
     full.fit(X, y)
     return oof, full
-
 
 def micro_probs_oof(seqs_tr, factory, seed: int, n_folds: int, epochs: int,
                     verbose: int = 0):
@@ -138,7 +135,6 @@ def micro_probs_oof(seqs_tr, factory, seed: int, n_folds: int, epochs: int,
     stats["micro_std"] = stats["micro_std"].fillna(0.0)
     return df, stats, wall
 
-
 def micro_game_stats(seqs, probs) -> pd.DataFrame:
     df = pd.DataFrame({"game_id": [s["game_id"] for s in seqs],
                        "prob": probs})
@@ -146,7 +142,6 @@ def micro_game_stats(seqs, probs) -> pd.DataFrame:
                                              micro_max="max", micro_min="min").reset_index()
     stats["micro_std"] = stats["micro_std"].fillna(0.0)
     return stats
-
 
 def fusion_methods(X_tr, y_tr, X_te, y_te, seed: int, want: list):
     """Fit each meta-model on OOF training data, score once on test."""
@@ -187,7 +182,6 @@ def fusion_methods(X_tr, y_tr, X_te, y_te, seed: int, want: list):
         m.fit(X_tr, y_tr)
         out["stacking_xgb"] = dict(test_auc=float(roc_auc_score(y_te, m.predict_proba(X_te)[:, 1])))
     return out
-
 
 def run_condition(condition: str, n_runs: int, epochs: int, n_folds: int,
                   tag: str | None) -> dict:
@@ -372,7 +366,6 @@ def run_condition(condition: str, n_runs: int, epochs: int, n_folds: int,
     return {"condition": condition,
             "methods": {m: [r["method_%s" % m] for r in results] for m in METHODS}}
 
-
 def main():
     ap = C.cli_parser(__doc__)
     args = ap.parse_args()
@@ -398,7 +391,6 @@ def main():
         print("=" * 74)
     finally:
         C.stop_log(tee)
-
 
 if __name__ == "__main__":
     main()

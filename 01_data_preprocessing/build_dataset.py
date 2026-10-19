@@ -1,3 +1,6 @@
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
 # -*- coding: utf-8 -*-
 """
 Rebuild the dataset after removing the 8 duplicated matches, then re-split.
@@ -20,9 +23,6 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import roc_auc_score
 import xgboost as xgb
 from config import ROOT, DATA, RESULTS, FIGURES  # noqa: E402
-import os as _os
-import sys as _sys
-_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
 
 SRC = str(DATA)
 OUT = str(DATA)

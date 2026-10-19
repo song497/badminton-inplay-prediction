@@ -3,6 +3,9 @@
 按论文口径（未决子集重训 + 5折 + 折均值）计算：
 每个时点「仅宏观 − 仅状态」的逐折差值，给出折均值差与 t 区间(95%, df=4)。
 """
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from config import ROOT, DATA, RESULTS, FIGURES, R1, R2, R3, R4  # noqa: E402
 import os, json
 import numpy as np
 from collections import Counter
@@ -13,13 +16,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import roc_auc_score
 import scipy.stats as st
 import common as C
-from config import ROOT, DATA, RESULTS, FIGURES  # noqa: E402
-import os as _os
-import sys as _sys
-_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
 
 OUT = str(RESULTS)
-
 
 def load(df):
     o = {}
@@ -35,12 +33,10 @@ def load(df):
                        "label": int(g["is_target_win"].iloc[-1])}
     return o
 
-
 df, M = C.load_blsr(C.BLSR_V2)
 TYPES = sorted(df["type"].dropna().unique())
 G = load(df)
 POP = sorted([g for g, x in G.items() if len(x["rallies"]) >= 30])
-
 
 def row(gid, w):
     R = G[gid]["rallies"][:w]
@@ -52,7 +48,6 @@ def row(gid, w):
     score = 2 * sum(x["win"] for x in R) - w
     k = min(3, w); mom = np.float32(sum(x["win"] for x in R[w - k:w]) if k else 0)
     return (G[gid]["match_id"], G[gid]["label"], tech, np.float32(score), mom, abs(score))
-
 
 print("%-6s %-5s %-8s %-8s %-9s %-20s %s" % ("时点", "局数", "仅状态", "仅宏观", "折均差", "95%CI(折间t)", "显著"))
 out = {}

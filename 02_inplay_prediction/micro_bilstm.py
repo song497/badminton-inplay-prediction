@@ -19,6 +19,9 @@ env / CLI
   N_RUNS (default 5)   EPOCHS (default 100)
   python run_micro.py [--conditions cnn,bilstm] [--n-runs 1] [--epochs 2]
 """
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from config import ROOT, DATA, RESULTS, FIGURES, R1, R2, R3, R4  # noqa: E402
 import os
 import sys
 import time
@@ -27,10 +30,6 @@ import numpy as np
 import pandas as pd
 
 import common as C
-from config import ROOT, DATA, RESULTS, FIGURES  # noqa: E402
-import os as _os
-import sys as _sys
-_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
 
 CONDITIONS = ["cnn", "bilstm", "transformer", "cnn_no_location", "cnn_lindan",
               "bilstm_no_location", "bilstm_lindan"]
@@ -45,7 +44,6 @@ ORIGIN = {
 }
 BATCH = 32
 PATIENCE = 15
-
 
 def build_private_split(df: pd.DataFrame, seed: int = 42):
     """3-way match-level split for the private dataset.
@@ -67,7 +65,6 @@ def build_private_split(df: pd.DataFrame, seed: int = 42):
     else:
         va, te = rest[:max(1, len(rest) // 2)], rest[max(1, len(rest) // 2):]
     return ([int(x) for x in tr], [int(x) for x in va], [int(x) for x in te])
-
 
 def prepare(condition: str):
     """Returns (train/val/test sequences, model factory, data path, meta).
@@ -110,7 +107,6 @@ def prepare(condition: str):
                      "train_rallies": len(seqs[0]), "val_rallies": len(seqs[1]),
                      "test_rallies": len(seqs[2])}
     return seqs, factory, data_path, meta
-
 
 def run_condition(condition: str, n_runs: int, epochs: int, tag: str | None) -> dict:
     print("\n" + "=" * 74)
@@ -190,7 +186,6 @@ def run_condition(condition: str, n_runs: int, epochs: int, tag: str | None) -> 
              [round(x, 4) for x in te_aucs]))
     return {"condition": condition, "test_aucs": te_aucs}
 
-
 def main():
     ap = C.cli_parser(__doc__)
     args = ap.parse_args()
@@ -214,7 +209,6 @@ def main():
         print("=" * 74)
     finally:
         C.stop_log(tee)
-
 
 if __name__ == "__main__":
     main()

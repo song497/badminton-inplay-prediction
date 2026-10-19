@@ -6,15 +6,14 @@
   图7 ← results_inplay/e5_fixed_k*.json（三段合并）
 输出：results_inplay/fig_inplay_auc_lr.png / fig_within_rally_lstm.png
 """
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from config import ROOT, DATA, RESULTS, FIGURES, R1, R2, R3, R4  # noqa: E402
 import os, json, glob
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from config import ROOT, DATA, RESULTS, FIGURES, R1, R2, R3, R4  # noqa: E402
-import os as _os
-import sys as _sys
-_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
 
 matplotlib.rcParams["font.sans-serif"] = ["Microsoft YaHei", "SimHei"]
 matplotlib.rcParams["axes.unicode_minus"] = False

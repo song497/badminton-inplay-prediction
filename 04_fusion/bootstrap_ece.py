@@ -4,6 +4,9 @@
 对 w=5/15/30，分别用 bootstrap 给出「仅状态」与「全部」臂 ECE 的 95% 区间，
 以及两者差值 (全部 − 仅状态) 的区间，判断该结论是否稳健。
 """
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from config import ROOT, DATA, RESULTS, FIGURES, R1, R2, R3, R4  # noqa: E402
 import os, json
 import numpy as np
 from collections import Counter
@@ -12,16 +15,11 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 import common as C
-from config import ROOT, DATA, RESULTS, FIGURES, R1, R2, R3, R4  # noqa: E402
-import os as _os
-import sys as _sys
-_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
 
 OUT = str(RESULTS)
 SEED, NF, B = 42, 5, 2000
 WS = [5, 15, 30]
 WMAX = max(WS)
-
 
 def load_games(df):
     out = {}
@@ -37,7 +35,6 @@ def load_games(df):
                          "label": int(g["is_target_win"].iloc[-1])}
     return out
 
-
 df, META = C.load_blsr(C.BLSR_V2)
 TYPES = sorted(df["type"].dropna().unique())
 GAMES = load_games(df)
@@ -45,7 +42,6 @@ POP = sorted([g for g, x in GAMES.items() if len(x["rallies"]) >= WMAX])
 OOF = {}
 for r in __import__("pandas").read_csv(os.path.join(str(R2), "micro_oof_rally_probs.csv")).itertuples():
     OOF[(int(r.game_id), int(r.rally_id))] = float(r.prob)
-
 
 def feats(gid, upto):
     g = GAMES[gid]; R = g["rallies"][:upto]
@@ -62,7 +58,6 @@ def feats(gid, upto):
     mic = np.array([np.mean(ps), np.std(ps), np.max(ps), np.min(ps)], np.float32) if ps else np.zeros(4, np.float32)
     return state, style, mic
 
-
 def ece(y, p, bins=10):
     idx = np.clip((p * bins).astype(int), 0, bins - 1)
     e = 0.0
@@ -72,7 +67,6 @@ def ece(y, p, bins=10):
             continue
         e += m.mean() * abs(y[m].mean() - p[m].mean())
     return float(e)
-
 
 rng = np.random.default_rng(SEED)
 res = {}

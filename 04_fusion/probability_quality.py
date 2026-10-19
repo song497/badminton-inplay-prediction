@@ -4,6 +4,9 @@
 各时点、各臂的 AUC / 准确率 / Brier / logloss / ECE / 净收益（pt=0.3,0.5）
 输出：results_inplay/quality_lr.json 与 _facts/quality_lr.md
 """
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from config import ROOT, DATA, RESULTS, FIGURES, R1, R2, R3, R4  # noqa: E402
 import os, json
 import numpy as np
 from collections import Counter
@@ -13,10 +16,6 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import roc_auc_score
 import common as C
-from config import ROOT, DATA, RESULTS, FIGURES, R1, R2, R3, R4  # noqa: E402
-import os as _os
-import sys as _sys
-_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
 
 OUT = str(RESULTS)
 SEED, NF = 42, 5
@@ -25,7 +24,6 @@ WMAX = max(WS)
 
 df, META = C.load_blsr(C.BLSR_V2)
 TYPES = sorted(df["type"].dropna().unique())
-
 
 def load_games(df):
     out = {}
@@ -41,13 +39,11 @@ def load_games(df):
                          "label": int(g["is_target_win"].iloc[-1])}
     return out
 
-
 GAMES = load_games(df)
 POP = sorted([g for g, x in GAMES.items() if len(x["rallies"]) >= WMAX])
 OOF = {}
 for r in __import__("pandas").read_csv(os.path.join(str(R2), "micro_oof_rally_probs.csv")).itertuples():
     OOF[(int(r.game_id), int(r.rally_id))] = float(r.prob)
-
 
 def feats(gid, upto):
     g = GAMES[gid]; R = g["rallies"][:upto]
@@ -64,11 +60,9 @@ def feats(gid, upto):
     mic = np.array([np.mean(ps), np.std(ps), np.max(ps), np.min(ps)], np.float32) if ps else np.zeros(4, np.float32)
     return state, style, mic
 
-
 ARMS = {"state": ("state",), "style": ("style",), "micro": ("micro",),
         "style+micro": ("style", "micro"), "state+style": ("state", "style"),
         "state+micro": ("state", "micro"), "all": ("state", "style", "micro")}
-
 
 def ece(y, p, bins=10):
     idx = np.clip((p * bins).astype(int), 0, bins - 1)
@@ -80,13 +74,11 @@ def ece(y, p, bins=10):
         e += m.mean() * abs(y[m].mean() - p[m].mean())
     return float(e)
 
-
 def nb(y, p, pt):
     m = p >= pt
     if m.sum() == 0:
         return 0.0
     return float((y[m] == 1).sum() / len(y) - (y[m] == 0).sum() / len(y) * (pt / (1 - pt)))
-
 
 res = {"note": "逻辑回归；每臂每时点用 5 折 GroupKFold 的折外概率计算", "windows": {}}
 for w in WS:

@@ -20,6 +20,9 @@
   results_inplay/micro_oof_rally_probs.csv
   results_inplay/timealigned_summary.json
 """
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from config import ROOT, DATA, RESULTS, FIGURES, R1, R2, R3, R4  # noqa: E402
 import os, sys, json, time
 from collections import Counter
 import numpy as np
@@ -28,9 +31,7 @@ import xgboost as xgb
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import GroupKFold
 
-sys.path.insert(0, str(ROOT))
 import common as C  # noqa: E402
-from config import ROOT, DATA, RESULTS, FIGURES, R1, R2, R3, R4  # noqa: E402
 
 ROOT = str(ROOT)
 DATA = os.path.join(str(DATA), "dataset_blsr_v2.csv")
@@ -56,7 +57,6 @@ print("loading data ...", flush=True)
 df, META = C.load_blsr(C.BLSR_V2)
 TYPES = sorted(df["type"].dropna().unique())
 
-
 # ------------------------------------------------------------------ games
 def load_games(df):
     out = {}
@@ -79,12 +79,10 @@ def load_games(df):
                          "label": int(g["is_target_win"].iloc[-1])}
     return out
 
-
 GAMES = load_games(df)
 POP = sorted([gid for gid, g in GAMES.items() if len(g["rallies"]) >= WMAX])
 ALL = sorted(GAMES.keys())
 print("games: all=%d  window-population(>=%d rallies)=%d" % (len(ALL), WMAX, len(POP)), flush=True)
-
 
 def feats_at(g, upto):
     """state(3), style(18), micro-aggregates(4, filled later) — all from rallies[:upto]."""
@@ -102,10 +100,8 @@ def feats_at(g, upto):
     state = np.array([score, momentum, upto], dtype=np.float32)
     return state, style
 
-
 # ============================================================ micro OOF probabilities
 OOF_CSV = os.path.join(OUT, "micro_oof_rally_probs%s.csv" % TAG)
-
 
 def build_micro_oof():
     """5-fold GroupKFold on games (grouped by match_id); BiLSTM trained per fold."""
@@ -146,12 +142,10 @@ def build_micro_oof():
     print("saved micro OOF probs:", OOF_CSV, len(out), flush=True)
     return out
 
-
 t0 = time.time()
 oof = build_micro_oof()
 print("micro OOF done in %.1f min" % ((time.time() - t0) / 60), flush=True)
 OOF = {(int(r.game_id), int(r.rally_id)): float(r.prob) for r in oof.itertuples()}
-
 
 def micro_agg(g, upto):
     ps = [OOF.get((gid_of(g), r["rally_id"]), np.nan) for r in g["rallies"][:upto]]
@@ -160,13 +154,10 @@ def micro_agg(g, upto):
         return np.zeros(4, np.float32)
     return np.array([np.mean(ps), np.std(ps), np.max(ps), np.min(ps)], dtype=np.float32)
 
-
 _GID = {}
-
 
 def gid_of(g):
     return g["_gid"]
-
 
 # ============================================================ evaluation
 def build_rows(gids, cutoff_fn):
@@ -182,7 +173,6 @@ def build_rows(gids, cutoff_fn):
                      "state": state, "style": style, "micro": mic, "upto": n})
     return rows
 
-
 ARMS = {
     "state": lambda r: r["state"],
     "style": lambda r: r["style"],
@@ -191,7 +181,6 @@ ARMS = {
     "state+micro": lambda r: np.concatenate([r["state"], r["micro"]]),
     "all": lambda r: np.concatenate([r["state"], r["style"], r["micro"]]),
 }
-
 
 def cv_arms(rows):
     """Same folds for every arm -> paired per-fold AUCs."""
@@ -208,7 +197,6 @@ def cv_arms(rows):
             m.fit(X[tr], y[tr])
             res[a].append(float(roc_auc_score(y[te], m.predict_proba(X[te])[:, 1])))
     return res, Xs, y, groups, folds
-
 
 def run_cutoff(name, gids, cutoff_fn):
     rows = build_rows(gids, cutoff_fn)
@@ -228,7 +216,6 @@ def run_cutoff(name, gids, cutoff_fn):
         line += "%s %.4f  " % (a, np.mean(res[a]))
     print(line, flush=True)
     return out
-
 
 print("\n=== absolute windows (fixed population) ===", flush=True)
 summary = {"design": "time-aligned fusion; all arms use rallies[1..t]; 5-fold GroupKFold by match_id",

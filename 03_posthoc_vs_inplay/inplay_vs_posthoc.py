@@ -5,6 +5,9 @@
 学习器：StandardScaler + LogisticRegression(L2, max_iter=5000)。
 输出：results_inplay/inplay_lr.json
 """
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from config import ROOT, DATA, RESULTS, FIGURES, R1, R2, R3, R4  # noqa: E402
 import os, json
 import numpy as np
 import scipy.stats as st
@@ -15,10 +18,6 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import roc_auc_score
 import common as C
-from config import ROOT, DATA, RESULTS, FIGURES, R1, R2, R3, R4  # noqa: E402
-import os as _os
-import sys as _sys
-_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
 
 ROOT = str(ROOT)
 OUT = str(R3)
@@ -28,7 +27,6 @@ WMAX = max(WINDOWS)
 
 df, META = C.load_blsr(C.BLSR_V2)
 TYPES = sorted(df["type"].dropna().unique())
-
 
 def load_games(df):
     out = {}
@@ -46,12 +44,10 @@ def load_games(df):
                          "label": int(g["is_target_win"].iloc[-1])}
     return out
 
-
 GAMES = load_games(df)
 POP = sorted([gid for gid, g in GAMES.items() if len(g["rallies"]) >= WMAX])   # 183
 ALL = sorted(GAMES.keys())                                                    # 223
 print("games all=%d pop=%d" % (len(ALL), len(POP)), flush=True)
-
 
 def tech(rallies):
     sc, rc = Counter(), Counter()
@@ -62,13 +58,11 @@ def tech(rallies):
     return np.array([(sc.get(t, 0) / st if st else 0.0) - (rc.get(t, 0) / rt if rt else 0.0)
                      for t in TYPES], dtype=np.float32)
 
-
 def mom_k(rallies, k):
     if not rallies:
         return 0.0
     kk = min(k, len(rallies))
     return float(sum(r["win"] for r in rallies[len(rallies) - kk:]))
-
 
 def streak(rallies):
     c = 0
@@ -79,7 +73,6 @@ def streak(rallies):
             break
     return float(c)
 
-
 def row_of(gid, upto):
     g = GAMES[gid]
     Rl = g["rallies"][:upto]
@@ -89,10 +82,8 @@ def row_of(gid, upto):
             "mom1": np.float32(mom_k(Rl, 1)), "mom3": np.float32(mom_k(Rl, 3)),
             "mom5": np.float32(mom_k(Rl, 5)), "streak": np.float32(streak(Rl))}
 
-
 def mk():
     return make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000, random_state=SEED))
-
 
 def cv_auc_folds(X, y, grp):
     fa = []
@@ -101,14 +92,11 @@ def cv_auc_folds(X, y, grp):
         fa.append(float(roc_auc_score(y[te], m.predict_proba(X[te])[:, 1])))
     return fa
 
-
 def cat(r, parts):
     return np.concatenate([np.atleast_1d(r[p]) for p in parts]).astype(np.float32)
 
-
 def describe(fa):
     return {"mean": float(np.mean(fa)), "std": float(np.std(fa, ddof=0)), "folds": [float(x) for x in fa]}
-
 
 R = {"note": "赛中章逻辑回归版（与表2/表5 统一）；5 折 GroupKFold 按 match_id，seed 42"}
 
@@ -182,7 +170,6 @@ def t2c_for(keyf):
         else:
             out[str(tgt)] = {"mean": None, "note": "w<=30 内未达到", "n_folds": 0}
     return out
-
 
 R["t2c"] = {"main": t2c_for("main"), "state": t2c_for("state")}
 print("t2c main:", json.dumps(R["t2c"]["main"], ensure_ascii=False), flush=True)

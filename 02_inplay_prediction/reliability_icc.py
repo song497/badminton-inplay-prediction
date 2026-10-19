@@ -13,14 +13,13 @@
 同时输出"可靠度如何随观测时点增长"，以便与"风格类特征的预测力是否随时点增长"对照。
 输出：results_inplay/snr_summary.json / snr_by_type.csv
 """
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from config import ROOT, DATA, RESULTS, FIGURES, R1, R2, R3, R4  # noqa: E402
 import os, json
 from collections import Counter
 import numpy as np
 import pandas as pd
-from config import ROOT, DATA, RESULTS, FIGURES, R1, R2, R3, R4, R1, R2, R3, R4  # noqa: E402
-import os as _os
-import sys as _sys
-_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
 
 ROOT = str(ROOT)
 DATA = str(DATA / "dataset_blsr_v2.csv") if not str(DATA).endswith(".csv") else DATA
@@ -45,7 +44,6 @@ for gid, g in df.groupby("game_id", sort=True):
 
 POP = sorted([g for g, v in games.items() if len(v["rallies"]) >= WMAX])
 
-
 def per_game_rates(gids, upto_fn, side):
     """returns counts[type] = (k_g array, n_g array)"""
     K = {t: [] for t in TYPES}
@@ -63,7 +61,6 @@ def per_game_rates(gids, upto_fn, side):
         for t in TYPES:
             K[t].append(c.get(t, 0))
     return {t: (np.array(K[t], float), np.array(N, float)) for t in TYPES}
-
 
 def icc_table(gids, upto_fn, side):
     """总体 + 逐类别的 ICC"""
@@ -83,7 +80,6 @@ def icc_table(gids, upto_fn, side):
                      "n_mean": float(n[ok].mean()), "var_obs": v_obs, "var_noise": v_noise,
                      "icc": float(icc), "noise_share": float(v_noise / v_obs) if v_obs > 0 else np.nan})
     return pd.DataFrame(rows)
-
 
 print("=== 逐类别 ICC（整局，含落点数据集）===")
 full_s = icc_table(sorted(games.keys()), lambda gid, rl: len(rl), "server")

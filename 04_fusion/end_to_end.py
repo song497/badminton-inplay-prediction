@@ -27,6 +27,9 @@ env / CLI
   V2_E2E_RECURRENT_DROPOUT (default 1 -> same as the original 0.5/0.5)
   python run_e2e.py [--conditions gru_pure,lstm_macro] [--n-runs 1] [--epochs 2]
 """
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from config import ROOT, DATA, RESULTS, FIGURES, R1, R2, R3, R4  # noqa: E402
 import os
 import time
 
@@ -34,10 +37,6 @@ import numpy as np
 import tensorflow as tf
 
 import common as C
-from config import ROOT, DATA, RESULTS, FIGURES  # noqa: E402
-import os as _os
-import sys as _sys
-_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
 
 ARCHS = ["gru", "lstm", "transformer"]
 CONDITIONS = ["%s_%s" % (a, s) for a in ARCHS for s in ("pure", "macro")]
@@ -52,13 +51,11 @@ ORIGIN = {
 BATCH = 8
 PATIENCE = 15
 
-
 def split_condition(condition: str):
     arch, variant = condition.rsplit("_", 1)
     if arch not in ARCHS or variant not in ("pure", "macro"):
         raise ValueError(condition)
     return arch, variant
-
 
 def build(arch: str, macro_dim):
     if arch == "gru":
@@ -68,7 +65,6 @@ def build(arch: str, macro_dim):
     if arch == "transformer":
         return C.build_e2e_transformer(macro_dim)
     raise ValueError(arch)
-
 
 def run_condition(condition: str, n_runs: int, epochs: int, tag: str | None) -> dict:
     arch, variant = split_condition(condition)
@@ -170,7 +166,6 @@ def run_condition(condition: str, n_runs: int, epochs: int, tag: str | None) -> 
                                                       float(np.std(vals))))
     return {"condition": condition, "test_aucs": vals}
 
-
 def main():
     ap = C.cli_parser(__doc__)
     args = ap.parse_args()
@@ -192,7 +187,6 @@ def main():
         print("=" * 74)
     finally:
         C.stop_log(tee)
-
 
 if __name__ == "__main__":
     main()
