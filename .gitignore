@@ -15,6 +15,9 @@ data/dataset_blsr_v2.csv
 data/macro_features_v2.csv
 data/game_to_match.csv
 
+# ---- Generated figures ----
+figures/
+
 # ---- Per-run training artefacts ----
 results/curves/
 results/logs/
