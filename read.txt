@@ -1,0 +1,9 @@
+首先在shuttleset下载源数据，路径在wywyWang/CoachAI-Projects/ShuttleSet与wywyWang/CoachAI-Projects/CoachAI-Challenge-IJCAI2023/ShuttleSet22下载两个set（最好给后一个set重命名为set22）并按照data/match_list.txt标记。
+
+01 数据预处理，首先运行parse_raw.py将原始逐拍数据合成为一张表并翻译为英文，build_dataset.py将数据构建模型可识别的特征，并划分训练/验证/测试集。
+
+02赛中预测，1.run_timealigned.py对照组版使用XGBoost产出下游必须微观折外概率，arms_timealigned.py实验版使用LR。2.time_to_criterion.py求达到AUC的标准需要多少回合，within_rally.py是某回合前k拍时的AUC。3.最后是reliability_icc.py可靠性检验，解释style组为何上升
+
+03赛后vs赛中，1.先运行inplay_vs_posthoc.py算赛后与赛中的落差。2.segments.py定位落差来自哪里：只用前m回合vs后m回合。3.close_subset.py重算分差≤2的未决局。
+
+04融合，1.micro_bilstm.py比较哪个回合级模型更好。2.fusion_two_stage.py与end_to_end.py两阶段与端到端可同时运行。3.probability_quality.py检测概率质量。4.bootstrap_ece.py给出ece置信区间。
