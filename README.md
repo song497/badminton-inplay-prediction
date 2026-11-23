@@ -1,7 +1,7 @@
 # Code for "When does a badminton match become predictable?"
 
 Code and result files for the manuscript *When does a badminton match become predictable?* (Song Jiayang,
-Zhou Tong), prepared for submission to the *Journal of Quantitative Analysis in Sports*.
+Zhou Tong).
 
 https://github.com/song497/badminton-inplay-prediction
 
